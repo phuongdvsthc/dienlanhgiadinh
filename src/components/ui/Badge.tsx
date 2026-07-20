@@ -7,7 +7,7 @@ interface BadgeProps {
 }
 
 export function Badge({ children, href, className = '' }: BadgeProps) {
-  const baseClasses = 'bg-surface-variant hover:bg-border text-surface-foreground px-3 py-1 rounded-full transition-colors text-[13px] font-medium inline-block';
+  const baseClasses = 'bg-surface-muted hover:bg-border text-text-primary px-3 py-1 rounded-full transition-colors text-[13px] font-medium inline-block';
   
   if (href) {
     return <a href={href} className={`${baseClasses} ${className}`}>{children}</a>;

@@ -1,32 +1,31 @@
-import { mockProducts } from '../../data/mock';
+import { productsData } from '../../data/products';
 import { ProductCard } from '../ui/ProductCard';
+import { Container } from '../ui/Container';
+import { SectionHeading } from '../ui/SectionHeading';
 
 export function FeaturedProducts() {
   return (
-    <section className="py-20 bg-surface-lowest">
-      <div className="max-w-[1280px] mx-auto px-6">
+    <section className="py-section-md bg-background">
+      <Container>
         <div className="flex justify-between items-end mb-10">
-          <div>
-            <h2 className="text-3xl font-bold text-primary tracking-tight">Sản phẩm nổi bật</h2>
-            <p className="text-muted mt-2">Các linh kiện và phụ kiện được mua nhiều nhất</p>
-          </div>
-          <a href="/san-pham" className="text-primary font-semibold hover:text-secondary transition-colors hidden sm:block">
+          <SectionHeading title="Sản phẩm nổi bật" subtitle="Các linh kiện và phụ kiện được mua nhiều nhất" className="!mb-0" />
+          <a href="/san-pham" className="text-primary font-semibold hover:text-accent transition-colors hidden sm:block mb-2">
             Xem tất cả sản phẩm &rarr;
           </a>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {mockProducts.map((product) => (
+          {productsData.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
         
         <div className="mt-8 text-center sm:hidden">
-          <a href="/san-pham" className="text-primary font-semibold hover:text-secondary transition-colors inline-block">
+          <a href="/san-pham" className="text-primary font-semibold hover:text-accent transition-colors inline-block">
             Xem tất cả sản phẩm &rarr;
           </a>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

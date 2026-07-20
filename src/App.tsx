@@ -8,6 +8,7 @@ import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
 import { ProductsPage } from './pages/ProductsPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/san-pham" element={<ProductsPage />} />
+            <Route path="/san-pham/:slug" element={<ProductDetailPage />} />
           </Routes>
         </main>
         <Footer />

@@ -1,21 +1,23 @@
-import { Hero } from '../components/home/Hero';
-import { SearchBar } from '../components/home/SearchBar';
-import { CategoryGrid } from '../components/home/CategoryGrid';
+import { HeroSection } from '../components/home/HeroSection';
+import { ProductSearch } from '../components/home/ProductSearch';
+import { CategorySection } from '../components/home/CategorySection';
 import { FeaturedProducts } from '../components/home/FeaturedProducts';
-import { WhyChooseUs } from '../components/home/WhyChooseUs';
-import { Testimonials } from '../components/home/Testimonials';
-import { CTASection } from '../components/home/CTASection';
+import { BenefitsSection } from '../components/home/BenefitsSection';
+import { ReviewsSection } from '../components/home/ReviewsSection';
+import { LatestPosts } from '../components/home/LatestPosts';
+import { FinalCTA } from '../components/home/FinalCTA';
 
 export function HomePage() {
   return (
     <>
-      <Hero />
-      <SearchBar />
-      <CategoryGrid />
+      <HeroSection />
+      <ProductSearch />
+      <CategorySection />
       <FeaturedProducts />
-      <WhyChooseUs />
-      <Testimonials />
-      <CTASection />
+      <BenefitsSection />
+      <ReviewsSection />
+      <LatestPosts />
+      <FinalCTA />
     </>
   );
 }
