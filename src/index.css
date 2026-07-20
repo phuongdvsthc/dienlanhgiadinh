@@ -64,3 +64,24 @@
     scrollbar-width: none;
   }
 }
+
+@layer components {
+  .article-content h2 {
+    @apply text-2xl font-bold text-primary mt-8 mb-4 scroll-mt-28;
+  }
+  .article-content h3 {
+    @apply text-xl font-bold text-primary mt-6 mb-3 scroll-mt-28;
+  }
+  .article-content p {
+    @apply mb-5 text-text-primary;
+  }
+  .article-content ul {
+    @apply list-disc pl-6 mb-5 text-text-primary space-y-2;
+  }
+  .article-content li::marker {
+    @apply text-primary;
+  }
+  .article-content strong {
+    @apply font-bold text-primary;
+  }
+}

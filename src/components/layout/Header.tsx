@@ -3,7 +3,7 @@ import { Button } from '../ui/Button';
 import { Container } from '../ui/Container';
 import { MobileMenu } from './MobileMenu';
 import { siteConfig } from '../../data/site';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 export function Header() {
   const location = useLocation();
@@ -11,7 +11,7 @@ export function Header() {
   return (
     <header className="bg-background fixed top-0 w-full z-50 shadow-sm border-b border-border/30">
       <Container className="py-4 flex justify-between items-center">
-        <a className="flex items-center gap-3" href="/">
+        <Link className="flex items-center gap-3" to="/">
           {siteConfig.logo ? (
             <img src={siteConfig.logo} alt={siteConfig.name} className="h-10 w-auto" />
           ) : (
@@ -20,23 +20,23 @@ export function Header() {
             </div>
           )}
           <span className="text-2xl font-extrabold text-primary hidden sm:block tracking-tight">{siteConfig.name}</span>
-        </a>
+        </Link>
         
         <nav className="hidden md:flex items-center gap-6">
           {siteConfig.menu.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isActive = location.pathname === item.href && item.href !== '#';
             return (
-              <a 
+              <Link 
                 key={item.href}
                 className={`text-sm tracking-wide transition-colors ${
                   isActive 
                     ? 'text-accent font-bold border-b-2 border-secondary pb-1' 
                     : 'text-text-accent hover:text-accent font-semibold'
                 }`} 
-                href={item.href}
+                to={item.href}
               >
                 {item.label}
-              </a>
+              </Link>
             );
           })}
         </nav>

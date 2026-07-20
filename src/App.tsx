@@ -9,6 +9,10 @@ import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
 import { ProductsPage } from './pages/ProductsPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
+import { BlogPage } from './pages/BlogPage';
+import { BlogDetailPage } from './pages/BlogDetailPage';
+import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
 
 export default function App() {
   return (
@@ -20,6 +24,10 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/san-pham" element={<ProductsPage />} />
             <Route path="/san-pham/:slug" element={<ProductDetailPage />} />
+            <Route path="/bai-viet" element={<BlogPage />} />
+            <Route path="/bai-viet/:slug" element={<BlogDetailPage />} />
+            <Route path="/gioi-thieu" element={<AboutPage />} />
+            <Route path="/lien-he" element={<ContactPage />} />
           </Routes>
         </main>
         <Footer />

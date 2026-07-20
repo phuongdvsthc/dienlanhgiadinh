@@ -1,6 +1,7 @@
 import { Phone, MessageCircle, Mail, MapPin, Clock } from 'lucide-react';
 import { Container } from '../ui/Container';
 import { siteConfig } from '../../data/site';
+import { Link } from 'react-router-dom';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -9,7 +10,7 @@ export function Footer() {
     <footer className="bg-primary-hover text-primary-foreground">
       <Container className="py-section-md grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="flex flex-col gap-4">
-          <a className="flex items-center gap-3" href="/">
+          <Link className="flex items-center gap-3" to="/">
             {siteConfig.logo ? (
               <img src={siteConfig.logo} alt={siteConfig.name} className="h-10 w-auto" />
             ) : (
@@ -18,7 +19,7 @@ export function Footer() {
               </div>
             )}
             <span className="text-xl font-bold text-primary-foreground tracking-tight">{siteConfig.name}</span>
-          </a>
+          </Link>
           <p className="text-primary-foreground/80 mt-2 leading-relaxed">
             {siteConfig.description}
           </p>
@@ -27,26 +28,46 @@ export function Footer() {
         <div className="flex flex-col gap-3">
           <h4 className="text-sm font-bold text-primary-foreground mb-2 uppercase tracking-wider">Danh mục</h4>
           {siteConfig.footerCategories.map((category) => (
-            <a 
-              key={category.label}
-              className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" 
-              href={category.href}
-            >
-              {category.label}
-            </a>
+            category.href.startsWith('http') || category.href.startsWith('tel:') || category.href.startsWith('mailto:') ? (
+              <a 
+                key={category.label}
+                className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" 
+                href={category.href}
+              >
+                {category.label}
+              </a>
+            ) : (
+              <Link 
+                key={category.label}
+                className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" 
+                to={category.href}
+              >
+                {category.label}
+              </Link>
+            )
           ))}
         </div>
         
         <div className="flex flex-col gap-3">
           <h4 className="text-sm font-bold text-primary-foreground mb-2 uppercase tracking-wider">Chính sách</h4>
           {siteConfig.footerLinks.map((link) => (
-            <a 
-              key={link.label}
-              className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" 
-              href={link.href}
-            >
-              {link.label}
-            </a>
+            link.href.startsWith('http') || link.href.startsWith('tel:') || link.href.startsWith('mailto:') ? (
+              <a 
+                key={link.label}
+                className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" 
+                href={link.href}
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link 
+                key={link.label}
+                className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" 
+                to={link.href}
+              >
+                {link.label}
+              </Link>
+            )
           ))}
         </div>
         

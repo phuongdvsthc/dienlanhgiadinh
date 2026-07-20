@@ -21,7 +21,7 @@ export const siteConfig = {
   menu: [
     { label: "Trang chủ", href: "/" },
     { label: "Sản phẩm", href: "/san-pham" },
-    { label: "Dịch vụ", href: "/dich-vu" },
+    { label: "Dịch vụ", href: "#" },
     { label: "Bài viết", href: "/bai-viet" },
     { label: "Giới thiệu", href: "/gioi-thieu" },
     { label: "Liên hệ", href: "/lien-he" },

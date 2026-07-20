@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X, Phone, MessageCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { siteConfig } from '../../data/site';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +18,7 @@ export function MobileMenu() {
     } else {
       document.body.style.overflow = 'unset';
     }
+
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -61,11 +62,11 @@ export function MobileMenu() {
 
         <div className="flex-1 overflow-y-auto py-4 px-4 flex flex-col gap-2">
           {siteConfig.menu.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isActive = location.pathname === item.href && item.href !== '#';
             return (
-              <a
+              <Link
                 key={item.href}
-                href={item.href}
+                to={item.href}
                 className={`py-3 px-4 rounded-md font-semibold transition-colors ${
                   isActive 
                     ? 'bg-primary/10 text-primary' 
@@ -74,7 +75,7 @@ export function MobileMenu() {
                 onClick={closeMenu}
               >
                 {item.label}
-              </a>
+              </Link>
             );
           })}
         </div>
