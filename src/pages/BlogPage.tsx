@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronRight, Search, ChevronLeft, Calendar, ArrowRight, MessageCircle, Phone, HeadphonesIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Container } from '../components/ui/Container';
 import { Heading } from '../components/ui/Heading';
 import { Text } from '../components/ui/Text';
@@ -125,9 +125,9 @@ export function BlogPage() {
                   <Text className="text-text-secondary mb-6 line-clamp-3">
                     {featuredPost.excerpt}
                   </Text>
-                  <a href="#" className="inline-flex items-center text-accent font-bold hover:underline w-max">
+                  <Link to={`/bai-viet/${featuredPost.slug}`} className="inline-flex items-center text-accent font-bold hover:underline w-max">
                     Đọc bài viết <ArrowRight size={18} className="ml-1" />
-                  </a>
+                  </Link>
                 </div>
               </article>
             )}
@@ -198,7 +198,7 @@ export function BlogPage() {
               <ul className="space-y-4">
                 {popularPosts.map((post, index) => (
                   <li key={post.id}>
-                    <a href="#" className="group flex gap-4 items-start">
+                    <Link to={`/bai-viet/${post.slug}`} className="group flex gap-4 items-start">
                       <span className="text-3xl font-extrabold text-border group-hover:text-accent/50 transition-colors leading-none">
                         {index + 1}
                       </span>
@@ -210,7 +210,7 @@ export function BlogPage() {
                           {post.views?.toLocaleString('vi-VN')} lượt xem
                         </span>
                       </div>
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>

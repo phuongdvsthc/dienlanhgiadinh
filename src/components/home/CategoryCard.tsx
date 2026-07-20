@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Heading } from '../ui/Heading';
 import { Text } from '../ui/Text';
 
@@ -17,7 +18,7 @@ interface CategoryCardProps {
 export function CategoryCard({ category }: CategoryCardProps) {
   if (category.isLarge) {
     return (
-      <a href="#" className={`${category.colSpan} ${category.rowSpan} bg-background p-8 rounded-lg shadow-sm hover:shadow-card transition-shadow border border-border/30 flex flex-col justify-between group`}>
+      <Link to="/san-pham" className={`${category.colSpan} ${category.rowSpan} bg-background p-8 rounded-lg shadow-sm hover:shadow-card transition-shadow border border-border/30 flex flex-col justify-between group`}>
         <div>
           <div className="bg-primary/5 w-16 h-16 rounded-lg flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-colors">
             {category.icon}
@@ -28,13 +29,13 @@ export function CategoryCard({ category }: CategoryCardProps) {
         <div className="mt-6 flex items-center text-primary font-semibold text-sm gap-1 group-hover:gap-2 transition-all">
           Xem tất cả <span aria-hidden="true">&rarr;</span>
         </div>
-      </a>
+      </Link>
     );
   }
   
   if (category.isHorizontal) {
     return (
-      <a href="#" className={`${category.colSpan} bg-background p-6 rounded-lg shadow-sm hover:shadow-card transition-shadow border border-border/30 flex flex-col justify-center group`}>
+      <Link to="/san-pham" className={`${category.colSpan} bg-background p-6 rounded-lg shadow-sm hover:shadow-card transition-shadow border border-border/30 flex flex-col justify-center group`}>
         <div className="flex items-center gap-5">
           <div className="bg-surface-muted w-14 h-14 rounded-lg flex items-center justify-center group-hover:bg-accent/10 transition-colors shrink-0">
             {category.icon}
@@ -44,16 +45,16 @@ export function CategoryCard({ category }: CategoryCardProps) {
             <Text variant="small" className="text-text-accent hidden sm:block">{category.description}</Text>
           </div>
         </div>
-      </a>
+      </Link>
     );
   }
 
   return (
-    <a href="#" className="bg-background p-6 rounded-lg shadow-sm hover:shadow-card transition-shadow border border-border/30 flex flex-col gap-4 group">
+    <Link to="/san-pham" className="bg-background p-6 rounded-lg shadow-sm hover:shadow-card transition-shadow border border-border/30 flex flex-col gap-4 group">
       <div className="bg-surface-muted w-12 h-12 rounded-lg flex items-center justify-center group-hover:bg-primary/10 transition-colors">
         {category.icon}
       </div>
       <Heading level={3} variant="h4" className="text-text-primary leading-tight">{category.title}</Heading>
-    </a>
+    </Link>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -63,18 +64,33 @@ export function Button({
   const finalClassName = `${baseClasses} ${variants[variant]} ${sizes[size]} ${widthClass} ${className}`;
 
   if (href) {
-    return (
-      <a 
-        href={href}
-        className={finalClassName}
-        target={target}
-        rel={rel}
-        // @ts-ignore - we know this is an anchor element if href is present
-        {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
-      >
-        {content}
-      </a>
-    );
+    if (href.startsWith('http') || href.startsWith('tel:') || href.startsWith('mailto:') || href.startsWith('#')) {
+      return (
+        <a 
+          href={href}
+          className={finalClassName}
+          target={target}
+          rel={rel}
+          // @ts-ignore
+          {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        >
+          {content}
+        </a>
+      );
+    } else {
+      return (
+        <Link 
+          to={href}
+          className={finalClassName}
+          target={target}
+          rel={rel}
+          // @ts-ignore
+          {...(props as any)}
+        >
+          {content}
+        </Link>
+      );
+    }
   }
 
   return (

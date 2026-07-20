@@ -1,4 +1,5 @@
 import { Calendar, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Heading } from '../ui/Heading';
 import { Text } from '../ui/Text';
 
@@ -9,12 +10,15 @@ interface BlogCardProps {
     excerpt: string;
     image: string;
     date: string;
+    slug?: string;
   };
 }
 
 export function BlogCard({ post }: BlogCardProps) {
+  const linkTo = post.slug ? `/bai-viet/${post.slug}` : '#';
+
   return (
-    <a href="#" className="group flex flex-col bg-background rounded-lg overflow-hidden shadow-sm border border-border/30 hover:shadow-card transition-all">
+    <Link to={linkTo} className="group flex flex-col bg-background rounded-lg overflow-hidden shadow-sm border border-border/30 hover:shadow-card transition-all">
       <div className="relative aspect-[16/9] overflow-hidden bg-surface-muted">
         <img 
           src={post.image} 
@@ -37,6 +41,6 @@ export function BlogCard({ post }: BlogCardProps) {
           Đọc tiếp <ArrowRight size={16} />
         </div>
       </div>
-    </a>
+    </Link>
   );
 }

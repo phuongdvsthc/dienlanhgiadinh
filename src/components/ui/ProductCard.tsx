@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { MessageCircle, Image as ImageIcon } from 'lucide-react';
 import { Badge } from './Badge';
 import { Button } from './Button';
@@ -54,11 +55,11 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-background rounded-xl shadow-sm border border-border/30 overflow-hidden hover:shadow-card transition-all duration-300 group flex flex-col relative h-full">
       {/* Overlay link to make whole card clickable */}
-      <a 
-        href={`/san-pham/${product.slug}`}
+      <Link 
+        to={`/san-pham/${product.slug}`}
         className="absolute inset-0 z-0"
         aria-label={`Xem chi tiết ${product.name}`}
-      ></a>
+      ></Link>
       
       <div className={`relative aspect-square overflow-hidden bg-surface-muted/30 p-4 flex items-center justify-center pointer-events-none ${isOutOfStock ? 'opacity-70 grayscale' : ''}`}>
         {badgeContent && !isOutOfStock && (

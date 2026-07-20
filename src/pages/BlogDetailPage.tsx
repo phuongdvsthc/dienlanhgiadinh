@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ChevronRight, Calendar, Clock, Share2, MessageCircle, Phone, ArrowRight, HelpCircle, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { Container } from '../components/ui/Container';
 import { Heading } from '../components/ui/Heading';
@@ -257,7 +257,7 @@ export function BlogDetailPage() {
                 </div>
                 <div className="p-4 space-y-4">
                   {relatedProducts.map(product => (
-                    <a key={product.id} href={`/san-pham/${product.slug}`} className="flex gap-4 group items-center">
+                    <Link key={product.id} to={`/san-pham/${product.slug}`} className="flex gap-4 group items-center">
                       <div className="w-16 h-16 rounded bg-surface border border-border/30 flex-shrink-0 group-hover:border-primary transition-colors p-1">
                         <img src={product.image} alt={product.name} className="w-full h-full object-contain mix-blend-multiply" />
                       </div>
@@ -269,7 +269,7 @@ export function BlogDetailPage() {
                           {product.price > 0 ? `${product.price.toLocaleString('vi-VN')}đ` : 'Liên hệ'}
                         </div>
                       </div>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
