@@ -2,11 +2,12 @@ import { Phone, MessageCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Container } from '../ui/Container';
 import { MobileMenu } from './MobileMenu';
-import { siteConfig } from '../../data/site';
 import { useLocation, Link } from 'react-router-dom';
+import { useSiteSettings } from '../../contexts/SiteSettingsContext';
 
 export function Header() {
   const location = useLocation();
+  const { settings: siteConfig } = useSiteSettings();
 
   return (
     <header className="bg-background fixed top-0 w-full z-50 shadow-sm border-b border-border/30">

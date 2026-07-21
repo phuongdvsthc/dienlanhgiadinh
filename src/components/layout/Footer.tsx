@@ -1,10 +1,21 @@
-import { Phone, MessageCircle, Mail, MapPin, Clock } from 'lucide-react';
+import { Phone, MessageCircle, Mail, MapPin, Clock, Facebook, Youtube, Video } from 'lucide-react';
 import { Container } from '../ui/Container';
-import { siteConfig } from '../../data/site';
 import { Link } from 'react-router-dom';
+import { useSiteSettings } from '../../contexts/SiteSettingsContext';
+
+const getSocialIcon = (iconName: string, size: number) => {
+  switch (iconName.toLowerCase()) {
+    case 'facebook': return <Facebook size={size} />;
+    case 'youtube': return <Youtube size={size} />;
+    case 'tiktok': return <Video size={size} />;
+    case 'zalo': return <MessageCircle size={size} />;
+    default: return null;
+  }
+};
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { settings: siteConfig } = useSiteSettings();
 
   return (
     <footer className="bg-primary-hover text-primary-foreground">
@@ -23,6 +34,15 @@ export function Footer() {
           <p className="text-primary-foreground/80 mt-2 leading-relaxed">
             {siteConfig.description}
           </p>
+          <div className="flex items-center gap-4 mt-4">
+            {siteConfig.social.map(s => (
+              s.url ? (
+                <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors" title={s.name}>
+                  {getSocialIcon(s.icon || s.name, 20)}
+                </a>
+              ) : null
+            ))}
+          </div>
         </div>
         
         <div className="flex flex-col gap-3">
@@ -79,13 +99,20 @@ export function Footer() {
           <a href={siteConfig.contact.zaloUrl} target="_blank" rel="noopener noreferrer" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors flex items-center gap-2">
             <MessageCircle size={18} /> Zalo: {siteConfig.contact.zalo}
           </a>
-          <a href={`mailto:${siteConfig.contact.email}`} className="text-primary-foreground/70 hover:text-primary-foreground transition-colors flex items-center gap-2">
-            <Mail size={18} /> Email: {siteConfig.contact.email}
+          <a href={`mailto:${siteConfig.contact.supportEmail || siteConfig.contact.email}`} className="text-primary-foreground/70 hover:text-primary-foreground transition-colors flex items-center gap-2">
+            <Mail size={18} /> Email: {siteConfig.contact.supportEmail || siteConfig.contact.email}
           </a>
-          <a href={siteConfig.contact.mapUrl} target="_blank" rel="noopener noreferrer" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors flex items-start gap-2 mt-2">
-            <MapPin size={18} className="mt-1 shrink-0" />
-            <span>{siteConfig.contact.address}</span>
-          </a>
+          {siteConfig.contact.mapUrl ? (
+            <a href={siteConfig.contact.mapUrl} target="_blank" rel="noopener noreferrer" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors flex items-start gap-2 mt-2">
+              <MapPin size={18} className="mt-1 shrink-0" />
+              <span>{siteConfig.contact.address}</span>
+            </a>
+          ) : (
+            <div className="text-primary-foreground/70 flex items-start gap-2 mt-2">
+              <MapPin size={18} className="mt-1 shrink-0" />
+              <span>{siteConfig.contact.address}</span>
+            </div>
+          )}
           <p className="text-primary-foreground/70 flex items-start gap-2 mt-1">
             <Clock size={18} className="mt-1 shrink-0" />
             <span>{siteConfig.contact.workingHours}</span>
@@ -93,7 +120,7 @@ export function Footer() {
         </div>
       </Container>
       <div className="border-t border-primary-hover-foreground/10 py-6 text-center text-primary-foreground/60 text-sm">
-        © {currentYear} {siteConfig.name}. Tất cả quyền được bảo lưu.
+        {siteConfig.copyright || `© ${currentYear} ${siteConfig.name}. Tất cả quyền được bảo lưu.`}
       </div>
     </footer>
   );

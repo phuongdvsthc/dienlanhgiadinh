@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Phone, MessageCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { siteConfig } from '../../data/site';
 import { useLocation, Link } from 'react-router-dom';
+import { useSiteSettings } from '../../contexts/SiteSettingsContext';
 
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { settings: siteConfig } = useSiteSettings();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);

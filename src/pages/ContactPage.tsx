@@ -5,11 +5,12 @@ import { Container } from '../components/ui/Container';
 import { Heading } from '../components/ui/Heading';
 import { Text } from '../components/ui/Text';
 import { Button } from '../components/ui/Button';
-import { siteConfig } from '../data/site';
 import { contactFaqs, productCategories } from '../data/contact';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 
 export function ContactPage() {
   const navigate = useNavigate();
+  const { settings: siteConfig } = useSiteSettings();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -127,66 +128,74 @@ export function ContactPage() {
             
             {/* Contact Info Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 hover:shadow-card transition-shadow">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-full text-primary">
-                    <Phone size={24} />
-                  </div>
-                  <div>
-                    <Heading level={3} variant="h4" className="text-primary mb-1 mt-0">Hotline Hỗ Trợ</Heading>
-                    <Text variant="small" className="text-text-secondary mb-2">Trực 24/7 cho sự cố khẩn cấp.</Text>
-                    <a href={siteConfig.contact.callUrl} className="font-bold text-accent hover:underline text-sm">
-                      {siteConfig.contact.hotline}
-                    </a>
+              {siteConfig.contact.hotline && (
+                <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 hover:shadow-card transition-shadow">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-full text-primary">
+                      <Phone size={24} />
+                    </div>
+                    <div>
+                      <Heading level={3} variant="h4" className="text-primary mb-1 mt-0">Hotline Hỗ Trợ</Heading>
+                      <Text variant="small" className="text-text-secondary mb-2">Trực 24/7 cho sự cố khẩn cấp.</Text>
+                      <a href={siteConfig.contact.callUrl || `tel:${siteConfig.contact.hotline.replace(/\s+/g, '')}`} className="font-bold text-accent hover:underline text-sm">
+                        {siteConfig.contact.hotline}
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 hover:shadow-card transition-shadow">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-full text-[#24ad45]">
-                    <MessageCircle size={24} />
-                  </div>
-                  <div>
-                    <Heading level={3} variant="h4" className="text-primary mb-1 mt-0">Zalo Kỹ Thuật</Heading>
-                    <Text variant="small" className="text-text-secondary mb-2">Gửi ảnh linh kiện để báo giá.</Text>
-                    <a href={siteConfig.contact.zaloUrl} target="_blank" rel="noopener noreferrer" className="font-bold text-accent hover:underline text-sm">
-                      {siteConfig.contact.zalo}
-                    </a>
+              {siteConfig.contact.zalo && siteConfig.contact.zaloUrl && (
+                <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 hover:shadow-card transition-shadow">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-full text-[#24ad45]">
+                      <MessageCircle size={24} />
+                    </div>
+                    <div>
+                      <Heading level={3} variant="h4" className="text-primary mb-1 mt-0">Zalo Kỹ Thuật</Heading>
+                      <Text variant="small" className="text-text-secondary mb-2">Gửi ảnh linh kiện để báo giá.</Text>
+                      <a href={siteConfig.contact.zaloUrl} target="_blank" rel="noopener noreferrer" className="font-bold text-accent hover:underline text-sm">
+                        {siteConfig.contact.zalo}
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 hover:shadow-card transition-shadow sm:col-span-2 md:col-span-1">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-full text-primary">
-                    <Mail size={24} />
-                  </div>
-                  <div>
-                    <Heading level={3} variant="h4" className="text-primary mb-1 mt-0">Email Liên Hệ</Heading>
-                    <Text variant="small" className="text-text-secondary mb-2">Dành cho đối tác và mua sỉ.</Text>
-                    <a href={`mailto:${siteConfig.contact.email}`} className="font-bold text-accent hover:underline text-sm break-all">
-                      {siteConfig.contact.email}
-                    </a>
+              {(siteConfig.contact.supportEmail || siteConfig.contact.email) && (
+                <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 hover:shadow-card transition-shadow sm:col-span-2 md:col-span-1">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-full text-primary">
+                      <Mail size={24} />
+                    </div>
+                    <div>
+                      <Heading level={3} variant="h4" className="text-primary mb-1 mt-0">Email Liên Hệ</Heading>
+                      <Text variant="small" className="text-text-secondary mb-2">Dành cho đối tác và mua sỉ.</Text>
+                      <a href={`mailto:${siteConfig.contact.supportEmail || siteConfig.contact.email}`} className="font-bold text-accent hover:underline text-sm break-all">
+                        {siteConfig.contact.supportEmail || siteConfig.contact.email}
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 hover:shadow-card transition-shadow sm:col-span-2 md:col-span-1">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-full text-primary">
-                    <Clock size={24} />
-                  </div>
-                  <div>
-                    <Heading level={3} variant="h4" className="text-primary mb-1 mt-0">Giờ Làm Việc</Heading>
-                    <Text variant="small" className="text-text-secondary mb-0">
-                      {siteConfig.contact.workingHours?.split('\n').map((line, i) => (
-                        <span key={i} className="block">{line}</span>
-                      )) || 'Thứ 2 - Thứ 7: 8:00 - 18:00'}
-                    </Text>
+              {siteConfig.contact.workingHours && (
+                <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 hover:shadow-card transition-shadow sm:col-span-2 md:col-span-1">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-full text-primary">
+                      <Clock size={24} />
+                    </div>
+                    <div>
+                      <Heading level={3} variant="h4" className="text-primary mb-1 mt-0">Giờ Làm Việc</Heading>
+                      <Text variant="small" className="text-text-secondary mb-0">
+                        {siteConfig.contact.workingHours.split('\n').map((line, i) => (
+                          <span key={i} className="block">{line}</span>
+                        ))}
+                      </Text>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Contact Form */}
@@ -368,53 +377,69 @@ export function ContactPage() {
           <div className="lg:col-span-4 flex flex-col gap-8">
             
             {/* Quick Actions */}
-            <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 flex flex-col gap-4">
-              <Heading level={3} variant="h3" className="text-primary mt-0 mb-2">Hỗ Trợ Nhanh</Heading>
-              <Button 
-                fullWidth 
-                variant="outline"
-                className="font-bold border-2 border-primary text-primary hover:bg-surface-muted"
-                iconLeft={<Phone size={20} />}
-                href={siteConfig.contact.callUrl}
-              >
-                Call Now ({siteConfig.contact.hotline})
-              </Button>
-              <Button 
-                fullWidth 
-                className="font-bold bg-[#0068FF] hover:bg-blue-700 text-white shadow-sm border-[#0068FF]"
-                iconLeft={<MessageCircle size={20} />}
-                href={siteConfig.contact.zaloUrl}
-                target="_blank"
-              >
-                Chat Zalo Ngay
-              </Button>
-            </div>
+            {((siteConfig.contact.hotline) || (siteConfig.contact.zaloUrl)) && (
+              <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50 flex flex-col gap-4">
+                <Heading level={3} variant="h3" className="text-primary mt-0 mb-2">Hỗ Trợ Nhanh</Heading>
+                {siteConfig.contact.hotline && (
+                  <Button 
+                    fullWidth 
+                    variant="outline"
+                    className="font-bold border-2 border-primary text-primary hover:bg-surface-muted"
+                    iconLeft={<Phone size={20} />}
+                    href={siteConfig.contact.callUrl || `tel:${siteConfig.contact.hotline.replace(/\s+/g, '')}`}
+                  >
+                    Call Now ({siteConfig.contact.hotline})
+                  </Button>
+                )}
+                {siteConfig.contact.zaloUrl && (
+                  <Button 
+                    fullWidth 
+                    className="font-bold bg-[#0068FF] hover:bg-blue-700 text-white shadow-sm border-[#0068FF]"
+                    iconLeft={<MessageCircle size={20} />}
+                    href={siteConfig.contact.zaloUrl}
+                    target="_blank"
+                  >
+                    Chat Zalo Ngay
+                  </Button>
+                )}
+              </div>
+            )}
 
-            {/* Maps Placeholder */}
-            <div className="bg-background p-1 rounded-xl shadow-sm border border-border/50 flex flex-col h-80 overflow-hidden">
-              <div className="w-full h-48 bg-surface-muted rounded-t-lg relative flex items-center justify-center border-b border-border/50">
-                <div className="text-center text-text-accent p-4">
-                  <MapPin size={32} className="mx-auto text-primary mb-2 opacity-50" />
-                  <span className="text-sm font-medium">Bản đồ đang được tải...</span>
+            {/* Maps or Address */}
+            {siteConfig.contact.address && (
+              <div className={`bg-background p-1 rounded-xl shadow-sm border border-border/50 flex flex-col ${siteConfig.contact.mapUrl ? 'h-80' : ''} overflow-hidden`}>
+                {siteConfig.contact.mapUrl && (
+                  <div className="w-full h-48 bg-surface-muted rounded-t-lg relative flex items-center justify-center border-b border-border/50 overflow-hidden">
+                    <iframe 
+                      src={siteConfig.contact.mapUrl} 
+                      className="w-full h-full border-0" 
+                      allowFullScreen 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade" 
+                      title="Bản đồ"
+                    ></iframe>
+                  </div>
+                )}
+                <div className={`p-4 flex-grow flex flex-col ${siteConfig.contact.mapUrl ? 'justify-between' : 'justify-center'} bg-background rounded-b-lg`}>
+                  <div>
+                    <h4 className="text-sm font-bold text-primary mb-1">Địa chỉ Cửa Hàng</h4>
+                    <p className="text-sm font-medium text-text-secondary">{siteConfig.contact.address}</p>
+                  </div>
+                  {siteConfig.contact.mapUrl && (
+                    <Button 
+                      fullWidth 
+                      variant="outline"
+                      className="font-bold border-2 border-primary text-primary hover:bg-surface-muted mt-2 text-sm h-10"
+                      iconLeft={<MapPin size={16} />}
+                      href={siteConfig.contact.mapUrl}
+                      target="_blank"
+                    >
+                      Xem Đường Đi
+                    </Button>
+                  )}
                 </div>
               </div>
-              <div className="p-4 flex-grow flex flex-col justify-between bg-background rounded-b-lg">
-                <div>
-                  <h4 className="text-sm font-bold text-primary mb-1">Địa chỉ Cửa Hàng</h4>
-                  <p className="text-sm font-medium text-text-secondary">{siteConfig.contact.address}</p>
-                </div>
-                <Button 
-                  fullWidth 
-                  variant="outline"
-                  className="font-bold border-2 border-primary text-primary hover:bg-surface-muted mt-2 text-sm h-10"
-                  iconLeft={<MapPin size={16} />}
-                  href={siteConfig.contact.mapUrl}
-                  target="_blank"
-                >
-                  Xem Đường Đi
-                </Button>
-              </div>
-            </div>
+            )}
 
             {/* FAQ Accordion */}
             <div className="bg-background p-6 rounded-xl shadow-sm border border-border/50">
@@ -461,22 +486,26 @@ export function ContactPage() {
               Đừng ngần ngại liên hệ trực tiếp với đội ngũ kỹ thuật của chúng tôi để giải quyết sự cố ngay lập tức.
             </Text>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button 
-                variant="outline"
-                className="font-bold border-2 border-primary text-primary hover:bg-background"
-                iconLeft={<Phone size={20} />}
-                href={siteConfig.contact.callUrl}
-              >
-                Call Hotline
-              </Button>
-              <Button 
-                className="font-bold bg-[#0068FF] hover:bg-blue-700 text-white shadow-sm border-[#0068FF]"
-                iconLeft={<MessageCircle size={20} />}
-                href={siteConfig.contact.zaloUrl}
-                target="_blank"
-              >
-                Chat Zalo
-              </Button>
+              {siteConfig.contact.hotline && (
+                <Button 
+                  variant="outline"
+                  className="font-bold border-2 border-primary text-primary hover:bg-background"
+                  iconLeft={<Phone size={20} />}
+                  href={siteConfig.contact.callUrl || `tel:${siteConfig.contact.hotline.replace(/\s+/g, '')}`}
+                >
+                  Call Hotline
+                </Button>
+              )}
+              {siteConfig.contact.zaloUrl && (
+                <Button 
+                  className="font-bold bg-[#0068FF] hover:bg-blue-700 text-white shadow-sm border-[#0068FF]"
+                  iconLeft={<MessageCircle size={20} />}
+                  href={siteConfig.contact.zaloUrl}
+                  target="_blank"
+                >
+                  Chat Zalo
+                </Button>
+              )}
             </div>
           </div>
         </Container>

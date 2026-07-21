@@ -1,0 +1,156 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==========================================
+    // HELPER FUNCTIONS
+    // ==========================================
+    
+    // Kiểm tra đã đăng nhập Firebase Auth
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+    
+    // Lấy thông tin admin hiện tại
+    function getAdminData() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+    }
+    
+    // Kiểm tra quyền admin
+    // Phải đăng nhập + có document trong collection admins + active/isActive == true + role là admin/editor
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid)) && 
+             (getAdminData().isActive == true || getAdminData().active == true) && 
+             (getAdminData().role == 'admin' || getAdminData().role == 'editor' || getAdminData().role == 'super_admin');
+    }
+    
+    // Kiểm tra chuỗi hợp lệ (không rỗng)
+    function isNonEmptyString(value) {
+      return value is string && value.trim().size() > 0;
+    }
+
+    // ==========================================
+    // PUBLIC CONTENT RULES (READ-ONLY)
+    // ==========================================
+    
+    match /products/{document} {
+      allow read: if resource.data.status == 'published' || resource.data.published == true;
+      allow write: if isAdmin();
+    }
+    
+    match /categories/{document} {
+      allow read: if resource.data.status == 'published' || resource.data.published == true;
+      allow write: if isAdmin();
+    }
+    
+    match /posts/{document} {
+      allow read: if resource.data.status == 'published' || resource.data.published == true;
+      allow write: if isAdmin();
+    }
+    
+    match /postCategories/{document} {
+      allow read: if resource.data.status == 'published' || resource.data.published == true;
+      allow write: if isAdmin();
+    }
+    
+    match /services/{document} {
+      allow read: if resource.data.status == 'published' || resource.data.published == true;
+      allow write: if isAdmin();
+    }
+    
+    match /siteSettings/{document} {
+      allow read: if document == 'global' || document == 'general';
+      allow write: if isAdmin();
+    }
+    
+    match /redirects/{document} {
+      allow read: if true; // Cho phép public read để router xử lý điều hướng
+      allow write: if isAdmin();
+    }
+
+    // ==========================================
+    // ORDERS RULES
+    // ==========================================
+    
+    match /orders/{orderId} {
+      // Chỉ Admin được đọc, cập nhật (như đổi trạng thái) và xóa
+      allow read, update, delete: if isAdmin();
+      
+      // Public chỉ được tạo với dữ liệu cực kỳ nghiêm ngặt
+      allow create: if 
+        // 1. Chứa các field bắt buộc
+        request.resource.data.keys().hasAll(['customer', 'product', 'quantity', 'status', 'createdAt']) &&
+        
+        // 2. Validate customer
+        isNonEmptyString(request.resource.data.customer.name) &&
+        isNonEmptyString(request.resource.data.customer.phone) &&
+        
+        // 3. Validate product
+        isNonEmptyString(request.resource.data.product.id) &&
+        request.resource.data.product.name is string &&
+        
+        // 4. Validate quantity (số nguyên từ 1 đến 100)
+        request.resource.data.quantity is int &&
+        request.resource.data.quantity >= 1 &&
+        request.resource.data.quantity <= 100 &&
+        
+        // 5. Status bắt buộc là 'new' khi mới tạo (client không được tự set completed)
+        request.resource.data.status == 'new' &&
+        
+        // 6. Thời gian tạo là timestamp từ server
+        request.resource.data.createdAt == request.time &&
+        
+        // 7. Chặn mọi field rác ngoài danh sách cho phép
+        request.resource.data.keys().hasOnly(['customer', 'product', 'quantity', 'status', 'createdAt', 'updatedAt', 'note', 'totalAmount', 'items']);
+    }
+    
+    // ==========================================
+    // CONTACTS RULES
+    // ==========================================
+    
+    match /contacts/{contactId} {
+      // Chỉ Admin được quản lý
+      allow read, update, delete: if isAdmin();
+      
+      // Public chỉ được gửi form liên hệ hợp lệ
+      allow create: if
+        // 1. Chứa các field bắt buộc
+        request.resource.data.keys().hasAll(['name', 'phone', 'message', 'status', 'createdAt']) &&
+        
+        // 2. Validate nội dung chuỗi
+        isNonEmptyString(request.resource.data.name) &&
+        isNonEmptyString(request.resource.data.phone) &&
+        isNonEmptyString(request.resource.data.message) &&
+        
+        // 3. Status bắt buộc là 'new'
+        request.resource.data.status == 'new' &&
+        
+        // 4. Thời gian khởi tạo chuẩn
+        request.resource.data.createdAt == request.time &&
+        
+        // 5. Chặn field rác
+        request.resource.data.keys().hasOnly(['name', 'phone', 'email', 'subject', 'message', 'status', 'createdAt', 'updatedAt']);
+    }
+    
+    // ==========================================
+    // ADMINS RULES
+    // ==========================================
+    
+    match /admins/{adminId} {
+      // Chặn public và user thường. Chỉ Admin được xem danh sách và chỉnh sửa
+      allow read, write: if isAdmin();
+      
+      // Chặn user thường tự ý tạo document để chiếm quyền admin (adminId phải do Super Admin tạo ra)
+      allow create: if isAdmin();
+    }
+    
+    // ==========================================
+    // DENY ALL
+    // ==========================================
+    // Khóa toàn bộ các collection / document lạ chưa được khai báo ở trên
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
