@@ -18,6 +18,9 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { ProtectedRoute } from './components/admin/ProtectedRoute';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { CategoryListPage } from './pages/admin/CategoryListPage';
+import { ProductListPage } from './pages/admin/ProductListPage';
+import { AddProductPage } from './pages/admin/AddProductPage';
+import { EditProductPage } from './pages/admin/EditProductPage';
 import { AddCategoryPage } from './pages/admin/AddCategoryPage';
 import { EditCategoryPage } from './pages/admin/EditCategoryPage';
 
@@ -50,6 +53,9 @@ export default function App() {
               <Route path="danh-muc" element={<CategoryListPage />} />
               <Route path="danh-muc/them" element={<AddCategoryPage />} />
               <Route path="danh-muc/:slug/sua" element={<EditCategoryPage />} />
+              <Route path="san-pham" element={<ProductListPage />} />
+              <Route path="san-pham/them" element={<AddProductPage />} />
+              <Route path="san-pham/:slug/sua" element={<EditProductPage />} />
               <Route path="*" element={<AdminDashboardPage />} />
             </Route>
           </Routes>

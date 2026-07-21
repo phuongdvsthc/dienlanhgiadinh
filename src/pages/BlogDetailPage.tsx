@@ -78,17 +78,19 @@ export function BlogDetailPage() {
             setRelatedArticles(related);
             
             // Load related products based on category or relatedProductSlugs
-            let products = [];
+            let products: any[] = [];
             if (currentPost.relatedProductSlugs && currentPost.relatedProductSlugs.length > 0) {
-              products = productsData.filter(p => currentPost.relatedProductSlugs.includes(p.slug));
+              products = productsData.filter(p => p.slug && currentPost.relatedProductSlugs.includes(p.slug));
             } else {
               const postCat = currentPost.category || currentPost.postCategorySlug;
-              products = productsData.filter(p => p.category.includes(postCat) || postCat.includes(p.category)).slice(0, 3);
+              if (postCat) {
+                products = productsData.filter(p => p.category && (p.category.includes(postCat) || postCat.includes(p.category))).slice(0, 3);
+              }
+              if (products.length === 0) {
+                products = productsData.slice(0, 3);
+              }
             }
             
-            if (products.length === 0) {
-              products = productsData.slice(0, 3);
-            }
             setRelatedProducts(products);
           }
         }
