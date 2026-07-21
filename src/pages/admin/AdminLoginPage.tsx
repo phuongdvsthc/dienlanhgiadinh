@@ -103,7 +103,7 @@ export function AdminLoginPage() {
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && <FormError error={error} className="text-center bg-error/10 p-3 rounded-md" />}
+          {error && <FormError className="text-center bg-error/10 p-3 rounded-md">{error}</FormError>}
           
           <div className="space-y-4">
             <Input

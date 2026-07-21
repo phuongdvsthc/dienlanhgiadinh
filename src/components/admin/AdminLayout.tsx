@@ -16,6 +16,7 @@ export const AdminLayout: React.FC = () => {
 
   const navItems = [
     { name: 'Tổng quan', path: '/admin', icon: <LayoutDashboard size={20} /> },
+    { name: 'Danh mục', path: '/admin/danh-muc', icon: <LayoutDashboard size={20} /> },
     { name: 'Sản phẩm', path: '/admin/products', icon: <Package size={20} /> },
     { name: 'Bài viết', path: '/admin/posts', icon: <FileText size={20} /> },
     { name: 'Đơn hàng', path: '/admin/orders', icon: <ShoppingCart size={20} /> },

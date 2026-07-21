@@ -138,8 +138,11 @@ service cloud.firestore {
     // ==========================================
     
     match /admins/{adminId} {
-      // Chặn public và user thường. Chỉ Admin được xem danh sách và chỉnh sửa
-      allow read, write: if isAdmin();
+      // Cho phép người dùng đọc document của chính họ để kiểm tra quyền, hoặc Admin có quyền đọc tất cả
+      allow read: if (isAuthenticated() && request.auth.uid == adminId) || isAdmin();
+      
+      // Chặn public và user thường. Chỉ Admin được chỉnh sửa
+      allow write: if isAdmin();
       
       // Chặn user thường tự ý tạo document để chiếm quyền admin (adminId phải do Super Admin tạo ra)
       allow create: if isAdmin();

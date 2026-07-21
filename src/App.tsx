@@ -17,6 +17,9 @@ import { AdminLoginPage } from './pages/admin/AdminLoginPage';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { ProtectedRoute } from './components/admin/ProtectedRoute';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+import { CategoryListPage } from './pages/admin/CategoryListPage';
+import { AddCategoryPage } from './pages/admin/AddCategoryPage';
+import { EditCategoryPage } from './pages/admin/EditCategoryPage';
 
 import { SiteSettingsProvider } from './contexts/SiteSettingsContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -44,6 +47,9 @@ export default function App() {
               </ProtectedRoute>
             }>
               <Route index element={<AdminDashboardPage />} />
+              <Route path="danh-muc" element={<CategoryListPage />} />
+              <Route path="danh-muc/them" element={<AddCategoryPage />} />
+              <Route path="danh-muc/:slug/sua" element={<EditCategoryPage />} />
               <Route path="*" element={<AdminDashboardPage />} />
             </Route>
           </Routes>
