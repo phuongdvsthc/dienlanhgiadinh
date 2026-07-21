@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -17,7 +17,7 @@ if (import.meta.env.DEV) {
   const missingKeys = Object.entries(firebaseConfig)
     .filter(([key, value]) => !value && key !== 'measurementId')
     .map(([key]) => key);
-  
+    
   if (missingKeys.length > 0) {
     console.warn(`[Firebase] Missing environment variables for Firebase configuration. Please check your .env file.`);
   }
@@ -27,6 +27,16 @@ if (import.meta.env.DEV) {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Initialize Cloud Firestore
-export const db = getFirestore(app);
+let firestoreDb;
+if (!getApps().length || !getApp().name) {
+  firestoreDb = initializeFirestore(app, { experimentalForceLongPolling: true });
+} else {
+  try {
+    firestoreDb = initializeFirestore(app, { experimentalForceLongPolling: true });
+  } catch (e) {
+    firestoreDb = getFirestore(app);
+  }
+}
 
+export const db = firestoreDb;
 export default app;

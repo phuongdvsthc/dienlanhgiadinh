@@ -9,13 +9,28 @@ interface BlogCardProps {
     title: string;
     excerpt: string;
     image: string;
-    date: string;
+    date?: string;
     slug?: string;
+    publishedAt?: string;
+    createdAt?: string;
   };
 }
 
 export function BlogCard({ post }: BlogCardProps) {
   const linkTo = post.slug ? `/bai-viet/${post.slug}` : '#';
+  
+  let displayDate = post.date;
+  if (!displayDate) {
+    const rawDate = post.publishedAt || post.createdAt;
+    if (rawDate) {
+      try {
+        const d = new Date(rawDate);
+        displayDate = d.toLocaleDateString('vi-VN');
+      } catch (e) {
+        displayDate = rawDate.split('T')[0];
+      }
+    }
+  }
 
   return (
     <Link to={linkTo} className="group flex flex-col bg-background rounded-lg overflow-hidden shadow-sm border border-border/30 hover:shadow-card transition-all">
@@ -29,7 +44,7 @@ export function BlogCard({ post }: BlogCardProps) {
       <div className="p-6 flex flex-col flex-grow">
         <div className="flex items-center gap-2 text-sm text-text-accent mb-3">
           <Calendar size={14} />
-          <span>{post.date}</span>
+          <span>{displayDate || 'Mới cập nhật'}</span>
         </div>
         <Heading level={3} variant="h4" className="text-text-primary mb-3 line-clamp-2 group-hover:text-primary transition-colors">
           {post.title}

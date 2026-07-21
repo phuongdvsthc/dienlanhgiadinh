@@ -1,16 +1,25 @@
-import React, { useState, useMemo } from 'react';
-import { Filter, ChevronRight, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Filter, ChevronRight, X, Loader2, Database } from 'lucide-react';
 import { ProductCard, Product } from '../components/ui/ProductCard';
 import { Button } from '../components/ui/Button';
-import { productsData, searchSuggestionsData, filtersData } from '../data/products';
+import { productsData as initialProductsData, searchSuggestionsData, filtersData as initialFiltersData } from '../data/products';
+import { categoriesData as initialCategoriesData } from '../data/categories';
 import { Container } from '../components/ui/Container';
 import { Heading } from '../components/ui/Heading';
 import { Text } from '../components/ui/Text';
 import { Checkbox } from '../components/ui/Checkbox';
 import { Select } from '../components/ui/Select';
 import { SearchInput } from '../components/ui/SearchInput';
+import { getPublishedCategories, getPublishedProducts } from '../repositories/catalogRepo';
 
 export function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>(initialProductsData);
+  const [categories, setCategories] = useState<string[]>(initialFiltersData.categories);
+  const [brands, setBrands] = useState<string[]>(initialFiltersData.brands);
+  const [sizes, setSizes] = useState<string[]>(initialFiltersData.sizes);
+  const [isFromFirestore, setIsFromFirestore] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
@@ -20,6 +29,47 @@ export function ProductsPage() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        const [fetchedCategories, fetchedProducts] = await Promise.all([
+          getPublishedCategories(),
+          getPublishedProducts()
+        ]);
+        
+        // Ensure fetchedProducts is actually different from fallback array memory-wise, 
+        // or check its length. Since repo returns fallback on error, let's check if 
+        // it returned different arrays. Actually, repo returns the mock data itself on fallback.
+        const isProdMock = fetchedProducts === initialProductsData;
+        const isCatMock = fetchedCategories === initialCategoriesData;
+        
+        if (!isProdMock || !isCatMock) {
+          setIsFromFirestore(true);
+          
+          if (!isProdMock && fetchedProducts.length > 0) {
+            setProducts(fetchedProducts);
+            
+            const extractedBrands = Array.from(new Set(fetchedProducts.map(p => p.brand).filter(Boolean))) as string[];
+            const extractedSizes = Array.from(new Set(fetchedProducts.map(p => p.size).filter(Boolean))) as string[];
+            
+            if (extractedBrands.length > 0) setBrands(extractedBrands);
+            if (extractedSizes.length > 0) setSizes(extractedSizes);
+          }
+          
+          if (!isCatMock && fetchedCategories.length > 0) {
+            setCategories(fetchedCategories.map((c: any) => c.title));
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi tải dữ liệu (sẽ dùng mock):", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   const toggleFilter = (setFilterState: React.Dispatch<React.SetStateAction<string[]>>, value: string) => {
     setFilterState(prev => 
@@ -38,7 +88,7 @@ export function ProductsPage() {
   };
 
   const filteredProducts = useMemo(() => {
-    return productsData.filter(product => {
+    return products.filter(product => {
       // Search
       const searchMatch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           product.productCode?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -69,7 +119,7 @@ export function ProductsPage() {
       if (sortBy === 'name_asc') return a.name.localeCompare(b.name);
       return 0; // newest/default - assuming productsData is already sorted by newest
     });
-  }, [searchTerm, selectedCategories, selectedBrands, selectedSizes, priceRange, sortBy]);
+  }, [products, searchTerm, selectedCategories, selectedBrands, selectedSizes, priceRange, sortBy]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -84,6 +134,11 @@ export function ProductsPage() {
           <a href="/" className="hover:text-primary transition-colors">Trang chủ</a>
           <ChevronRight size={16} />
           <span className="text-text-primary font-semibold">Sản phẩm</span>
+          {isFromFirestore && (
+            <span className="ml-auto flex items-center gap-1 text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+              <Database size={10} /> Live Data
+            </span>
+          )}
         </nav>
 
         {/* Page Header */}
@@ -148,7 +203,7 @@ export function ProductsPage() {
               <div className="mb-6 pb-6 border-b border-border/30">
                 <Heading level={3} variant="h4" className="mb-4">Danh mục</Heading>
                 <div className="flex flex-col gap-3">
-                  {filtersData.categories.map((cat) => (
+                  {categories.map((cat) => (
                     <Checkbox 
                       key={cat}
                       label={cat}
@@ -160,34 +215,38 @@ export function ProductsPage() {
               </div>
 
               {/* Brands */}
-              <div className="mb-6 pb-6 border-b border-border/30">
-                <Heading level={3} variant="h4" className="mb-4">Thương hiệu</Heading>
-                <div className="flex flex-col gap-3">
-                  {filtersData.brands.map((brand) => (
-                    <Checkbox 
-                      key={brand}
-                      label={brand}
-                      checked={selectedBrands.includes(brand)}
-                      onChange={() => toggleFilter(setSelectedBrands, brand)}
-                    />
-                  ))}
+              {brands.length > 0 && (
+                <div className="mb-6 pb-6 border-b border-border/30">
+                  <Heading level={3} variant="h4" className="mb-4">Thương hiệu</Heading>
+                  <div className="flex flex-col gap-3">
+                    {brands.map((brand) => (
+                      <Checkbox 
+                        key={brand}
+                        label={brand}
+                        checked={selectedBrands.includes(brand)}
+                        onChange={() => toggleFilter(setSelectedBrands, brand)}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Sizes */}
-              <div className="mb-6 pb-6 border-b border-border/30">
-                <Heading level={3} variant="h4" className="mb-4">Kích thước</Heading>
-                <div className="flex flex-col gap-3">
-                  {filtersData.sizes.map((size) => (
-                    <Checkbox 
-                      key={size}
-                      label={size}
-                      checked={selectedSizes.includes(size)}
-                      onChange={() => toggleFilter(setSelectedSizes, size)}
-                    />
-                  ))}
+              {sizes.length > 0 && (
+                <div className="mb-6 pb-6 border-b border-border/30">
+                  <Heading level={3} variant="h4" className="mb-4">Kích thước</Heading>
+                  <div className="flex flex-col gap-3">
+                    {sizes.map((size) => (
+                      <Checkbox 
+                        key={size}
+                        label={size}
+                        checked={selectedSizes.includes(size)}
+                        onChange={() => toggleFilter(setSelectedSizes, size)}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Price */}
               <div className="mb-6 md:mb-0">
@@ -275,7 +334,12 @@ export function ProductsPage() {
             )}
 
             {/* Product Grid */}
-            {filteredProducts.length > 0 ? (
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-16 bg-surface rounded-xl border border-border/30 flex-grow text-center">
+                <Loader2 size={32} className="text-primary animate-spin mb-4" />
+                <Heading level={3} variant="h4" className="mb-2">Đang tải dữ liệu...</Heading>
+              </div>
+            ) : filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
                 {paginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
@@ -294,7 +358,7 @@ export function ProductsPage() {
             )}
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {!isLoading && totalPages > 1 && (
               <div className="mt-auto flex justify-center items-center gap-2 pt-8">
                 <Button 
                   variant="outline" 

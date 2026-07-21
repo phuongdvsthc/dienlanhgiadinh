@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronRight, Search, ChevronLeft, Calendar, ArrowRight, MessageCircle, Phone, HeadphonesIcon } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container } from '../components/ui/Container';
@@ -8,9 +8,10 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { BlogCard } from '../components/home/BlogCard';
 import { ProductCard } from '../components/ui/ProductCard';
-import { postsData, blogCategories } from '../data/posts';
+import { postsData as mockPostsData, blogCategories as mockBlogCategories } from '../data/posts';
 import { productsData } from '../data/products';
 import { siteConfig } from '../data/site';
+import { getPublishedPosts, getPublishedPostCategories } from '../repositories/postRepo';
 
 export function BlogPage() {
   const navigate = useNavigate();
@@ -19,22 +20,52 @@ export function BlogPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
+  const [posts, setPosts] = useState<any[]>(mockPostsData);
+  const [categories, setCategories] = useState<any[]>(mockBlogCategories);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadData() {
+      try {
+        const [fsPosts, fsCategories] = await Promise.all([
+          getPublishedPosts(),
+          getPublishedPostCategories()
+        ]);
+        if (isMounted) {
+          if (fsPosts.length > 0 && fsCategories.length > 0) {
+            setPosts(fsPosts);
+            setCategories(fsCategories);
+          }
+        }
+      } catch (error) {
+        console.warn("Lỗi khi tải bài viết từ Firestore:", error);
+      }
+    }
+    loadData();
+    return () => { isMounted = false; };
+  }, []);
+
   const filteredPosts = useMemo(() => {
-    return postsData.filter(post => {
+    return posts.filter(post => {
       const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                             post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory ? post.category === selectedCategory : true;
+      
+      let matchesCategory = true;
+      if (selectedCategory) {
+        const catId = post.postCategorySlug || post.category;
+        matchesCategory = catId === selectedCategory || post.category === selectedCategory;
+      }
       return matchesSearch && matchesCategory;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, posts]);
 
   const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
   const paginatedPosts = filteredPosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const featuredPost = postsData.find(post => post.featured);
+  const featuredPost = posts.find(post => post.featured);
   
   // Popular posts based on views
-  const popularPosts = [...postsData].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3);
+  const popularPosts = [...posts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3);
   
   // Related products (mock)
   const relatedProducts = productsData.slice(0, 4);
@@ -83,18 +114,22 @@ export function BlogPage() {
           >
             Tất cả
           </button>
-          {blogCategories.map(cat => (
+          {categories.map(cat => {
+            const catTitle = typeof cat === 'string' ? cat : cat.title;
+            const catId = typeof cat === 'string' ? cat : cat.slug;
+            return (
             <button 
-              key={cat}
-              className={`px-5 py-2 rounded-full font-semibold text-sm transition-colors ${selectedCategory === cat ? 'bg-accent text-accent-foreground shadow-sm' : 'bg-surface-muted border border-border/50 text-text-primary hover:bg-surface-muted/80'}`}
+              key={catId}
+              className={`px-5 py-2 rounded-full font-semibold text-sm transition-colors ${selectedCategory === catId ? 'bg-accent text-accent-foreground shadow-sm' : 'bg-surface-muted border border-border/50 text-text-primary hover:bg-surface-muted/80'}`}
               onClick={() => {
-                setSelectedCategory(cat);
+                setSelectedCategory(catId);
                 setCurrentPage(1);
               }}
             >
-              {cat}
+              {catTitle}
             </button>
-          ))}
+            );
+          })}
         </section>
 
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-16">
@@ -220,19 +255,21 @@ export function BlogPage() {
             <div className="bg-background rounded-xl shadow-sm p-6 border border-border/30">
               <Heading level={3} variant="h4" className="text-primary mb-4 border-b border-border/50 pb-4">Danh mục</Heading>
               <ul className="space-y-2">
-                {blogCategories.slice(0, 5).map(cat => {
-                  const count = postsData.filter(p => p.category === cat).length;
+                {categories.slice(0, 5).map(cat => {
+                  const catTitle = typeof cat === 'string' ? cat : cat.title;
+                  const catId = typeof cat === 'string' ? cat : cat.slug;
+                  const count = posts.filter(p => (p.postCategorySlug || p.category) === catId || p.category === catTitle).length;
                   return (
-                    <li key={cat}>
+                    <li key={catId}>
                       <button 
                         className="w-full flex justify-between items-center py-2 text-sm font-semibold text-text-primary hover:text-accent transition-colors"
                         onClick={() => {
-                          setSelectedCategory(cat);
+                          setSelectedCategory(catId);
                           setCurrentPage(1);
                           window.scrollTo(0, 0);
                         }}
                       >
-                        <span>{cat}</span>
+                        <span>{catTitle}</span>
                         <span className="bg-surface-muted px-2 py-0.5 rounded text-xs text-text-secondary">{count}</span>
                       </button>
                     </li>

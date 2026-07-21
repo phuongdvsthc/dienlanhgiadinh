@@ -32,6 +32,7 @@ export default function App() {
               <Route path="/gioi-thieu" element={<AboutPage />} />
               <Route path="/lien-he" element={<ContactPage />} />
             </Routes>
+
           </main>
           <Footer />
         </div>

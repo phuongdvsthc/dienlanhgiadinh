@@ -1,10 +1,28 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productsData } from '../../data/products';
 import { ProductCard } from '../ui/ProductCard';
 import { Container } from '../ui/Container';
 import { SectionHeading } from '../ui/SectionHeading';
+import { getFeaturedProducts } from '../../repositories/catalogRepo';
 
 export function FeaturedProducts() {
+  const [products, setProducts] = useState(productsData);
+
+  useEffect(() => {
+    async function loadFeaturedProducts() {
+      try {
+        const data = await getFeaturedProducts();
+        if (data && data.length > 0) {
+          setProducts(data);
+        }
+      } catch (error) {
+        console.error("Failed to load featured products:", error);
+      }
+    }
+    loadFeaturedProducts();
+  }, []);
+
   return (
     <section className="py-section-md bg-background">
       <Container>
@@ -16,7 +34,7 @@ export function FeaturedProducts() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productsData.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

@@ -9,21 +9,133 @@ import { BlogCard } from '../components/home/BlogCard';
 import { ProductCard } from '../components/ui/ProductCard';
 import { ArticleCallout } from '../components/blog/ArticleCallout';
 import { ArticleTableOfContents } from '../components/blog/ArticleTableOfContents';
-import { postsData } from '../data/posts';
+import { postsData as mockPostsData } from '../data/posts';
 import { productsData } from '../data/products';
 import { siteConfig } from '../data/site';
+import { getPostBySlug, getRelatedPosts } from '../repositories/postRepo';
+import { Post } from '../types/post';
 
 export function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  const post = postsData.find(p => p.slug === slug);
   
+  const [post, setPost] = useState<Post | any | null>(null);
+  const [relatedArticles, setRelatedArticles] = useState<any[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   // Scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    async function loadPostData() {
+      if (!slug) return;
+      setIsLoading(true);
+      
+      try {
+        // Try to fetch from Firestore first
+        const fsPost = await getPostBySlug(slug);
+        
+        let currentPost: any = fsPost;
+        
+        // Fallback to mock data if not found in Firestore
+        if (!currentPost) {
+          const mockPost = mockPostsData.find(p => p.slug === slug);
+          if (mockPost) {
+            currentPost = mockPost;
+          }
+        }
+        
+        if (isMounted) {
+          setPost(currentPost);
+          
+          if (currentPost) {
+            // Load related articles
+            let related: any[] = [];
+            // Assuming getRelatedPosts works for both types if cast properly, 
+            // but we might need to fallback to mock if the post is from mock
+            if (fsPost) {
+                related = await getRelatedPosts(fsPost as Post, 3);
+            }
+            
+            if (related.length === 0) {
+                // Fallback related logic
+                const cat = (currentPost as any).postCategorySlug || currentPost.category;
+                related = mockPostsData
+                  .filter(p => ((p as any).postCategorySlug || p.category) === cat && p.id !== currentPost.id)
+                  .slice(0, 3);
+                
+                if (related.length === 0) {
+                   related = mockPostsData.filter(p => p.id !== currentPost.id).slice(0, 3);
+                }
+            }
+            
+            setRelatedArticles(related);
+            
+            // Load related products based on category or relatedProductSlugs
+            let products = [];
+            if (currentPost.relatedProductSlugs && currentPost.relatedProductSlugs.length > 0) {
+              products = productsData.filter(p => currentPost.relatedProductSlugs.includes(p.slug));
+            } else {
+              const postCat = currentPost.category || currentPost.postCategorySlug;
+              products = productsData.filter(p => p.category.includes(postCat) || postCat.includes(p.category)).slice(0, 3);
+            }
+            
+            if (products.length === 0) {
+              products = productsData.slice(0, 3);
+            }
+            setRelatedProducts(products);
+          }
+        }
+      } catch (error) {
+        console.warn("Lỗi khi tải chi tiết bài viết:", error);
+        // On error, try mock data
+        if (isMounted) {
+            const mockPost = mockPostsData.find(p => p.slug === slug);
+            if (mockPost) {
+                setPost(mockPost);
+                
+                // Fallback related
+                const cat = mockPost.category;
+                let related = mockPostsData.filter(p => p.category === cat && p.id !== mockPost.id).slice(0, 3);
+                if (related.length === 0) {
+                   related = mockPostsData.filter(p => p.id !== mockPost.id).slice(0, 3);
+                }
+                setRelatedArticles(related);
+                
+                let products = productsData.filter(p => p.category.includes(cat) || cat.includes(p.category)).slice(0, 3);
+                if (products.length === 0) {
+                  products = productsData.slice(0, 3);
+                }
+                setRelatedProducts(products);
+            }
+        }
+      } finally {
+        if (isMounted) {
+            setIsLoading(false);
+        }
+      }
+    }
+    
+    loadPostData();
+    
+    return () => { isMounted = false; };
+  }, [slug]);
+
+  if (isLoading) {
+    return (
+      <div className="pt-32 pb-24 text-center min-h-[60vh] flex flex-col items-center justify-center">
+        <Container>
+          <Text className="text-text-secondary">Đang tải bài viết...</Text>
+        </Container>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -40,17 +152,8 @@ export function BlogDetailPage() {
     );
   }
 
-  // Find related products based on category (mock logic)
-  const relatedProducts = productsData.filter(p => p.category.includes(post.category) || post.category.includes(p.category)).slice(0, 3);
-  if (relatedProducts.length === 0) {
-    relatedProducts.push(...productsData.slice(0, 3));
-  }
-
-  // Find related articles based on category (excluding current post)
-  const relatedArticles = postsData.filter(p => p.category === post.category && p.id !== post.id).slice(0, 3);
-  if (relatedArticles.length === 0) {
-    relatedArticles.push(...postsData.filter(p => p.id !== post.id).slice(0, 3));
-  }
+  // Get the category string for display
+  const categoryDisplay = post.category || post.postCategorySlug || '';
 
   return (
     <div className="pt-24 pb-16">
@@ -61,7 +164,7 @@ export function BlogDetailPage() {
           <ChevronRight size={16} />
           <button onClick={() => navigate('/bai-viet')} className="hover:text-primary transition-colors">Bài viết</button>
           <ChevronRight size={16} />
-          <button className="hover:text-primary transition-colors">{post.category}</button>
+          <button className="hover:text-primary transition-colors">{categoryDisplay}</button>
           <ChevronRight size={16} />
           <span className="text-text-primary truncate max-w-[200px] sm:max-w-none">{post.title}</span>
         </nav>
@@ -80,7 +183,7 @@ export function BlogDetailPage() {
             <header className="mb-8">
               <div className="flex items-center gap-3 mb-4">
                 <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                  {post.category}
+                  {categoryDisplay}
                 </span>
                 <span className="text-text-secondary text-sm flex items-center gap-1 font-semibold">
                   <Clock size={16} /> {post.readTime || '3 phút đọc'}

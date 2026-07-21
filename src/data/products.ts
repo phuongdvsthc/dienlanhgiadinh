@@ -32,7 +32,7 @@ const rawProductsData: Omit<Product, 'slug'>[] = [
     brand: 'OEM',
     price: 80000, 
     image: 'https://images.unsplash.com/photo-1585659722983-3a6750f22f77?q=80&w=600&auto=format&fit=crop', 
-    category: 'Vòng xoay',
+    category: 'Vòng xoay và trục xoay',
     badge: 'best_seller'
   },
   { 
@@ -72,7 +72,7 @@ const rawProductsData: Omit<Product, 'slug'>[] = [
     brand: 'OEM',
     price: 120000, 
     image: 'https://images.unsplash.com/photo-1585659722983-3a6750f22f77?q=80&w=600&auto=format&fit=crop', 
-    category: 'Motor lò vi sóng', 
+    category: 'Linh kiện lò vi sóng', 
     badge: 'new' 
   },
   { 
@@ -125,10 +125,10 @@ export const searchSuggestionsData = [
 export const filtersData = {
   categories: [
     "Đĩa xoay lò vi sóng",
-    "Vòng xoay",
+    "Vòng xoay và trục xoay",
+    "Linh kiện lò vi sóng",
     "Linh kiện máy lạnh",
-    "Linh kiện máy giặt",
-    "Motor lò vi sóng"
+    "Linh kiện máy giặt"
   ],
   brands: [
     "Sharp",

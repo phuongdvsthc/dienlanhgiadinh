@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronRight, MessageCircle, Phone, CheckCircle, Search, Settings, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { ChevronRight, MessageCircle, Phone, CheckCircle, Search, Settings, AlertTriangle, Image as ImageIcon, Database } from 'lucide-react';
 import { detailedProductsData, DetailedProduct } from '../data/products';
 import { Container } from '../components/ui/Container';
 import { Button } from '../components/ui/Button';
@@ -12,29 +12,52 @@ import { ProductGallery } from '../components/product/ProductGallery';
 import { BuyNowModal } from '../components/product/BuyNowModal';
 import { QuantitySelector } from '../components/product/QuantitySelector';
 import { siteConfig } from '../data/site';
-import { ProductCard } from '../components/ui/ProductCard';
+import { ProductCard, Product } from '../components/ui/ProductCard';
+import { getProductBySlug, getPublishedProducts } from '../repositories/catalogRepo';
 
 export function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<DetailedProduct | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'specs' | 'desc' | 'guide'>('specs');
+  const [isFromFirestore, setIsFromFirestore] = useState(false);
 
   useEffect(() => {
-    // In a real app, fetch from API. Here we mock it.
-    window.scrollTo(0, 0);
-    setLoading(true);
+    async function loadData() {
+      if (!slug) return;
+      
+      window.scrollTo(0, 0);
+      setLoading(true);
+      
+      try {
+        const fetchedProduct = await getProductBySlug(slug);
+        
+        if (fetchedProduct) {
+          setProduct(fetchedProduct);
+          setIsFromFirestore(fetchedProduct !== detailedProductsData.find(p => p.slug === slug || p.id === slug));
+          
+          const allProducts = await getPublishedProducts();
+          const related = allProducts
+            .filter(p => p.category === fetchedProduct.category && p.id !== fetchedProduct.id && p.slug !== fetchedProduct.slug)
+            .slice(0, 4);
+            
+          setRelatedProducts(related);
+        } else {
+          setProduct(null);
+        }
+      } catch (error) {
+        console.error("Lỗi tải chi tiết sản phẩm:", error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    }
     
-    // Attempt to find by slug, then by id as fallback
-    const foundProduct = detailedProductsData.find(p => p.slug === slug || p.id === slug);
-    
-    setTimeout(() => {
-      setProduct(foundProduct || null);
-      setLoading(false);
-    }, 300); // Simulate loading
+    loadData();
   }, [slug]);
 
   if (loading) {
@@ -63,11 +86,6 @@ export function ProductDetailPage() {
   const isOutOfStock = product.stockStatus === 'out_of_stock';
   const hasPrice = product.price !== undefined && product.price > 0;
   
-  // Find related products (same category, exclude current)
-  const relatedProducts = detailedProductsData
-    .filter(p => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-
   return (
     <div className="pt-24 pb-16 relative">
       <Container>
@@ -78,6 +96,11 @@ export function ProductDetailPage() {
           <button onClick={() => navigate('/san-pham')} className="hover:text-primary transition-colors">Sản phẩm</button>
           <ChevronRight size={16} />
           <span className="text-primary truncate max-w-[200px] sm:max-w-none">{product.name}</span>
+          {isFromFirestore && (
+            <span className="ml-auto flex items-center gap-1 text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+              <Database size={10} /> Live Data
+            </span>
+          )}
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-16">
